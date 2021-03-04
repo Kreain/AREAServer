@@ -10,7 +10,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/libArea/mysql-connector-java-5.1.49-bin.jar!/" />
+          <root url="jar://$MODULE_DIR$/../libArea/json-20200518.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -19,7 +19,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/libArea/json-20200518.jar!/" />
+          <root url="jar://$MODULE_DIR$/../libArea/mysql-connector-java-5.1.49-bin.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

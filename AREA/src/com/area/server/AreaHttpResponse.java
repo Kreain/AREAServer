@@ -4,13 +4,14 @@ import org.json.JSONObject;
 
 public class AreaHttpResponse {
 
-    protected JSONObject requestData;
+    protected JSONObject requestData = null;
     private JSONObject responseData = null;
     private boolean responseCode = false;
     private String errorMessage = null;
 
     public AreaHttpResponse(AreaHttpRequest request) {
-        requestData = request.getData();
+        if (request != null)
+            requestData = request.getData();
     }
 
     public JSONObject getResponse() {

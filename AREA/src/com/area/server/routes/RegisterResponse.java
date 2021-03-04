@@ -4,55 +4,64 @@ import com.area.server.AreaHttpRequest;
 import com.area.server.AreaHttpResponse;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.sql.*;
 
 public class RegisterResponse extends AreaHttpResponse {
 
-    private String username;
-    private String email;
-    private String password;
+    private final String username;
+    private final String email;
+    private final String password;
+
+    private final String sqlHost = "localhost";
+    private final String sqlPort = "3306";
+    private final String sqlDatabase = "AREA";
+    private final String sqlUsername = "root";
+    private final String sqlPassword = "root";
 
     private static Connection connection;
 
-    public RegisterResponse(AreaHttpRequest request) {
+    public RegisterResponse(AreaHttpRequest request) throws Exception {
         super(request);
 
         if (request.getMode() != AreaHttpRequest.RequestMode.POST)
-            return;
+            throw new IOException("Not a POST request");
         if (!requestData.has("credentials")) {
             setErrorData(new JSONObject("reason", "No credentials provided"));
-            return;
+            throw new IOException("No credentials provided");
         }
         JSONObject credentials = requestData.getJSONObject("credentials");
         username = credentials.getString("username");
         email = credentials.getString("email");
         password = credentials.getString("password");
 
-        System.out.println("username: " + username);
-        System.out.println("email: " + email);
-        System.out.println("password: " + password);
-
-        try {
-            if (emailAlreadyExist()) {
-                setErrorData(new JSONObject("reason", "Email address already in use"));
-                return;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            setErrorData(new JSONObject("reason", "An unknown error has occurred"));
-            return;
+        if (emailAlreadyExist()) {
+            setErrorData(new JSONObject().put("reason", "Email address already in use"));
+            throw new IOException("Email address already in use");
+        } else {
+            registerNewUser();
+            setSuccessData(new JSONObject().put("response", "User has been registered"));
         }
     }
+    
+    private void registerNewUser() throws Exception {
+        if (connection != null && !connection.isClosed())
+            throw new Exception("Connection already opened");
+        Class.forName("com.mysql.jdbc.Driver");
+        connection = DriverManager.getConnection("jdbc:mysql://" + sqlHost + ":" +
+                sqlPort + "/" + sqlDatabase + "?autoReconnect=true&useSSL=false", sqlUsername, sqlPassword);
 
-    public boolean emailAlreadyExist() throws Exception {
-        String sqlHost = "localhost";
-        String sqlPort = "3306";
-        String sqlDatabase = "AREA";
-        String sqlUsername = "root";
-        String sqlPassword = "root";
+        Statement statement = connection.createStatement();
+        String query = "INSERT INTO users(username, email, password) VALUES(\"" +
+                username + "\", \"" + email + "\", \"" + password + "\");";
+        statement.executeUpdate(query);
+    }
+
+    private boolean emailAlreadyExist() throws Exception {
+        boolean exists;
 
         if (connection != null && !connection.isClosed())
-            throw new Exception();
+            throw new Exception("Connection already opened");
         Class.forName("com.mysql.jdbc.Driver");
         connection = DriverManager.getConnection("jdbc:mysql://" + sqlHost + ":" +
                 sqlPort + "/" + sqlDatabase + "?autoReconnect=true&useSSL=false", sqlUsername, sqlPassword);
@@ -60,9 +69,9 @@ public class RegisterResponse extends AreaHttpResponse {
         Statement statement = connection.createStatement();
         String query = "SELECT * FROM users WHERE email=\"" + email + "\";";
         ResultSet result = statement.executeQuery(query);
-        System.out.println(result.next());
+        exists = result.next();
         statement.close();
         connection.close();
-        return (true);
+        return (exists);
     }
 }

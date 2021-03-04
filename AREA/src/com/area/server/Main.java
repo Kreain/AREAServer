@@ -12,6 +12,8 @@ public class Main {
     private static InetAddress ip;
     private static HttpServer server = null;
 
+    private static boolean debug = false;
+
     private static final String[] routes = {
         "/", "/register", "/login"
     };
@@ -24,10 +26,14 @@ public class Main {
     public static void main(String[] args) {
         InetAddress ip;
         String hostname;
+
+        if (args.length > 0 && args[0].equals("debug"))
+            debug = true;
+
         try {
             ip = InetAddress.getLocalHost();
             hostname = ip.getHostAddress();
-            server = HttpServer.create(new InetSocketAddress(hostname, 6565), 0);
+            server = HttpServer.create(new InetSocketAddress(hostname, 8080), 0);
             addRoutes();
             server.setExecutor(null);
             server.start();
@@ -37,5 +43,9 @@ public class Main {
             e.printStackTrace();
             System.exit(84);
         }
+    }
+
+    public static boolean isDebug() {
+        return (debug);
     }
 }

@@ -1,6 +1,7 @@
 package com.area.server;
 
 import com.sun.net.httpserver.HttpExchange;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -18,7 +19,7 @@ public class AreaHttpRequest {
     private JSONObject data;
     private RequestMode mode;
 
-    public AreaHttpRequest(HttpExchange exchange) throws IOException {
+    public AreaHttpRequest(HttpExchange exchange) throws IOException, JSONException {
         if (exchange.getRequestMethod().equals("POST")) {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8));
             StringBuilder buffer = new StringBuilder(512);
